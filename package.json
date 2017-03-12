@@ -1,0 +1,24 @@
+{
+  "name": "sudoku-solver",
+  "author": "Andrew Gura",
+  "homepage": "http://andrew-gura.pp.ua/sudoku-solver",
+  "version": "1.0.0",
+  "description": "Typescript module for solving sudoku puzzles",
+  "keywords": [
+    "sudoku",
+    "solver",
+    "AndyGura",
+    "puzzle",
+    "typescript"
+  ],
+  "scripts": {
+    "build": "gulp clean && gulp build",
+    "test": "gulp clean && gulp build && node dist/test.js"
+  },
+  "dependencies": {
+    "gulp": "^3.9.1",
+    "gulp-clean": "^0.3.2",
+    "gulp-typescript": "^3.1.5",
+    "typescript": "^2.1.6"
+  }
+}
