@@ -1,6 +1,6 @@
 import {SudokuCell} from "./sudoku-cell";
 import {SudokuCellStatus} from "../enums/sudoku-cell-status.enum";
-import SudokuError from "../errors/sudoku-error";
+import {SudokuError} from "../errors/sudoku-error";
 export class Sudoku {
 
     private static readonly MIN_KNOWN_CELLS_COUNT: number = 15;
