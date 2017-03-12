@@ -13,7 +13,7 @@
     "typescript"
   ],
   "scripts": {
-    "test": "gulp clean && gulp build && node dist/test.js"
+    "test": "gulp clean && gulp build && node dist/src/test.js"
   },
   "dependencies": {
     "gulp": "^3.9.1",
