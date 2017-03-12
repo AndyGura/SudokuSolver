@@ -1,4 +1,4 @@
-export default class CodeError extends Error {
+export default class SudokuError extends Error {
 
     public code: number;
 

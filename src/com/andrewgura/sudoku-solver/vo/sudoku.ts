@@ -1,6 +1,6 @@
 import {SudokuCell} from "./sudoku-cell";
 import {SudokuCellStatus} from "../enums/sudoku-cell-status.enum";
-import CodeError from "../errors/code-error";
+import SudokuError from "../errors/sudoku-error";
 export class Sudoku {
 
     private static readonly MIN_KNOWN_CELLS_COUNT: number = 15;
@@ -102,7 +102,7 @@ export class Sudoku {
                         atLeastOneFoundOnLastIteration = true;
                     } else {
                         if (cell.possibleValues.length === 0) {
-                            throw new CodeError(1, 'Sudoku doesn\'t have any solution');
+                            throw new SudokuError(1, 'Sudoku doesn\'t have any solution');
                         }
                         atLeastOneEmpty = true;
                     }
@@ -151,7 +151,7 @@ export class Sudoku {
                             }
                         }
                         if (possiblePositions.length === 0) {
-                            throw new CodeError(1, 'Sudoku doesn\'t have any solution');
+                            throw new SudokuError(1, 'Sudoku doesn\'t have any solution');
                         }
                         if (possiblePositions.length === 1) {
                             this.writeCalculatedValue(possiblePositions[0], j, n);
@@ -190,16 +190,16 @@ export class Sudoku {
                     solutionsCounter++;
                 } catch (err) {
                     // if recursive solver said that sudoku has more than one solution, it is true
-                    if ((err as CodeError).code === 2) {
+                    if ((err as SudokuError).code === 2) {
                         throw err;
                     }
                 }
                 if (solutionsCounter > 1) {
-                    throw new CodeError(2, 'Sudoku has more than one solution');
+                    throw new SudokuError(2, 'Sudoku has more than one solution');
                 }
             }
             if (solutionsCounter === 0) {
-                throw new CodeError(1, 'Sudoku doesn\'t have any solution');
+                throw new SudokuError(1, 'Sudoku doesn\'t have any solution');
             } else {
                 this.copyFrom(anySolution.result);
             }

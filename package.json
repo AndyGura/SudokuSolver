@@ -4,6 +4,7 @@
   "homepage": "http://andrew-gura.pp.ua/sudoku-solver",
   "version": "1.0.0",
   "description": "Typescript module for solving sudoku puzzles",
+  "main": "index.ts",
   "keywords": [
     "sudoku",
     "solver",
