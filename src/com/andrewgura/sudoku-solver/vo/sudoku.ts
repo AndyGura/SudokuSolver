@@ -109,7 +109,6 @@ export class Sudoku {
                 }
             }
             // 2. search possible positions of number
-            // TODO rewrite in modern collection way
             for (let n: number = 1; n < 10; n++) {
                 // find the only possible position of a number (in a row)
                 for (let i: number = 0; i < 9; i++) {
@@ -134,7 +133,6 @@ export class Sudoku {
                     }
                 }
                 // find the only possible position of a number (in a column)
-                // TODO condence code (copy/paste)
                 for (let j: number = 0; j < 9; j++) {
                     let isNumberPresented: boolean = false;
                     for (let i: number = 0; i < 9; i++) {
