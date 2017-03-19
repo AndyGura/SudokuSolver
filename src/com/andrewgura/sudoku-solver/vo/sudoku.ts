@@ -157,6 +157,38 @@ export class Sudoku {
                         }
                     }
                 }
+                // find the only possible position of a number (in a cell)
+                for (let cellIndex: number = 0; cellIndex < 9; cellIndex++) {
+                    let cellX: number = cellIndex % 3;
+                    let cellY: number = (cellIndex - cellX) / 3;
+                    let isNumberPresented: boolean = false;
+                    for (let i: number = cellX*3; i < (cellX+1)*3; i++) {
+                        for (let j: number = cellY*3; j < (cellY+1)*3; j++) {
+                            if (this.cells[i][j].value === n) {
+                                isNumberPresented = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!isNumberPresented) {
+                        let possiblePositions: any[] = [];
+
+                        for (let i: number = cellX*3; i < (cellX+1)*3; i++) {
+                            for (let j: number = cellY*3; j < (cellY+1)*3; j++) {
+                                if (this.cells[i][j].value === 0 && this.cells[i][j].possibleValues.indexOf(n) > -1) {
+                                    possiblePositions.push({x: i, y: j});
+                                }
+                            }
+                        }
+                        if (possiblePositions.length === 0) {
+                            throw new SudokuError(1, 'Sudoku doesn\'t have any solution');
+                        }
+                        if (possiblePositions.length === 1) {
+                            this.writeCalculatedValue(possiblePositions[0].x, possiblePositions[0].y, n);
+                            atLeastOneFoundOnLastIteration = true;
+                        }
+                    }
+                }
             }
         }
         if (!atLeastOneFoundOnLastIteration && atLeastOneEmpty) {

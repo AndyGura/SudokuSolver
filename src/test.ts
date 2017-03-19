@@ -22,6 +22,7 @@ function testSolver(): boolean {
         }
     }
 
+    console.log('Measuring solve time...');
     let theMostComplicatedSudoku: string = "8abgecfdiid36hbagef7ed9a2hca5dbc7hifcfih457babhg1fie3deb1igdc68dc85bfi1gg9fcah4eb";
     let startTime = (new Date()).getTime();
     let sudoku: Sudoku;
