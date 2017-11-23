@@ -8,8 +8,8 @@ export class Sudoku {
 
     private invalidateIsValidFlag: boolean = false;
     private _isValid: boolean = false;
-    private _isSolved: boolean = false;
 
+    public isSolved: boolean = false;
     public cells: Array<Array<SudokuCell>>;
     public complexity: number;
 
@@ -30,23 +30,7 @@ export class Sudoku {
         this.clear(false);
         this.cells[ i ][ j ] = new SudokuCell(value);
         this.invalidateIsValid();
-    }
-
-    public get isSolved(): boolean {
-        if ( this.invalidateIsValidFlag ) {
-            this._isSolved = true;
-            outer:
-                for (let i: number = 0; i < 9; i++) {
-                    for (let j: number = 0; j < 9; j++) {
-                        if ( !this.cells[ i ][ j ].value ) {
-                            this._isSolved = false;
-                            break outer;
-                        }
-                    }
-                }
-            this.invalidateIsValidFlag = false;
-        }
-        return this._isSolved;
+        this.isSolved = false;
     }
 
     public get isValid(): boolean {
@@ -95,6 +79,9 @@ export class Sudoku {
     }
 
     solve(): void {
+        if ( this.isSolved ) {
+            return;
+        }
         // first, lets calculate the matrix of possible values
         for (let i: number = 0; i < 9; i++) {
             for (let j: number = 0; j < 9; j++) {
@@ -268,6 +255,7 @@ export class Sudoku {
                 this.copyFrom(anySolution.result);
             }
         }
+        this.isSolved = true;
     }
 
     calculateCellPossibleValues(i: number, j: number): void {
@@ -337,6 +325,7 @@ export class Sudoku {
             }
         }
         this.invalidateIsValid();
+        this.isSolved = false;
     }
 
     copyFrom(copySource: Sudoku): void {
@@ -364,6 +353,7 @@ export class Sudoku {
             }
         }
         this.invalidateIsValid();
+        this.isSolved = false;
     }
 
     serialize(): string {
