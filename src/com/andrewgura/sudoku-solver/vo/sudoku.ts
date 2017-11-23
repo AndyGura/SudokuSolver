@@ -1,6 +1,7 @@
-import {SudokuCell} from "./sudoku-cell";
-import {SudokuCellStatus} from "../enums/sudoku-cell-status.enum";
-import {SudokuError} from "../errors/sudoku-error";
+import { SudokuCell } from './sudoku-cell';
+import { SudokuCellStatus } from '../enums/sudoku-cell-status.enum';
+import { SudokuError } from '../errors/sudoku-error';
+
 export class Sudoku {
 
     private static readonly MIN_KNOWN_CELLS_COUNT: number = 15;
@@ -13,43 +14,49 @@ export class Sudoku {
 
     constructor(copySource?: Sudoku) {
         // initialize cells 2D array 9x9 with SudokuCell instances or cells from "copySource" sudoku instance;
-        this.cells = [...Array.from(Array(9).keys()).map(i => [...Array.from(Array(9).keys()).map(j =>
-            copySource ? copySource.cells[i][j].clone() : new SudokuCell()
-        )])];
+        this.cells = [ ...Array.from(Array(9)
+            .keys())
+                               .map(i => [ ...Array.from(Array(9)
+                                   .keys())
+                                                   .map(j =>
+                                                       copySource ? copySource.cells[ i ][ j ].clone() : new SudokuCell()
+                                                   )
+                               ])
+        ];
     }
 
     setValue(i: number, j: number, value: number): void {
         this.clear(false);
-        this.cells[i][j] = new SudokuCell(value);
+        this.cells[ i ][ j ] = new SudokuCell(value);
         this.invalidateIsValid();
     }
 
     public get isValid(): boolean {
-        if (this.invalidateIsValidFlag) {
+        if ( this.invalidateIsValidFlag ) {
             let knownCellsCounter: number = 0;
             let wrongCellsCounter: number = 0;
             for (let i: number = 0; i < 9; i++) {
                 for (let j: number = 0; j < 9; j++) {
-                    if (!this.cells[i][j].isUndefined()) {
-                        let value: number = this.cells[i][j].value;
+                    if ( !this.cells[ i ][ j ].isUndefined() ) {
+                        let value: number = this.cells[ i ][ j ].value;
                         for (let ii: number = i + 1; ii < 9; ii++) {
-                            if (this.cells[ii][j].value === value) {
+                            if ( this.cells[ ii ][ j ].value === value ) {
                                 this.markAsWrongValues(i, j, ii, j);
                                 wrongCellsCounter++;
                             }
                         }
                         for (let jj: number = j + 1; jj < 9; jj++) {
-                            if (this.cells[i][jj].value === value) {
+                            if ( this.cells[ i ][ jj ].value === value ) {
                                 this.markAsWrongValues(i, j, i, jj);
                                 wrongCellsCounter++;
                             }
                         }
                         for (let ii: number = (i - i % 3); ii < (i - i % 3 + 3); ii++) {
                             for (let jj: number = (j - j % 3); jj < (j - j % 3 + 3); jj++) {
-                                if (i === ii && j === jj) {
+                                if ( i === ii && j === jj ) {
                                     continue;
                                 }
-                                if (this.cells[ii][jj].value === value) {
+                                if ( this.cells[ ii ][ jj ].value === value ) {
                                     this.markAsWrongValues(i, j, ii, jj);
                                     wrongCellsCounter++;
                                 }
@@ -79,8 +86,8 @@ export class Sudoku {
         let complexity: number = 1;
         for (let i: number = 0; i < 9; i++) {
             for (let j: number = 0; j < 9; j++) {
-                if (this.cells[i][j].value == 0 || this.cells[i][j].status != SudokuCellStatus.Set) {
-                    complexity *= this.cells[i][j].possibleValues.length;
+                if ( this.cells[ i ][ j ].value == 0 || this.cells[ i ][ j ].status != SudokuCellStatus.Set ) {
+                    complexity *= this.cells[ i ][ j ].possibleValues.length;
                 }
             }
         }
@@ -93,15 +100,15 @@ export class Sudoku {
             // 1. find the only possible numbers in the cell
             for (let i: number = 0; i < 9; i++) {
                 for (let j: number = 0; j < 9; j++) {
-                    let cell: SudokuCell = this.cells[i][j];
-                    if (cell.value > 0) {
+                    let cell: SudokuCell = this.cells[ i ][ j ];
+                    if ( cell.value > 0 ) {
                         continue;
                     }
-                    if (cell.possibleValues.length === 1) {
-                        this.writeCalculatedValue(i, j, cell.possibleValues[0]);
+                    if ( cell.possibleValues.length === 1 ) {
+                        this.writeCalculatedValue(i, j, cell.possibleValues[ 0 ]);
                         atLeastOneFoundOnLastIteration = true;
                     } else {
-                        if (cell.possibleValues.length === 0) {
+                        if ( cell.possibleValues.length === 0 ) {
                             throw new SudokuError(1, 'Sudoku doesn\'t have any solution');
                         }
                         atLeastOneEmpty = true;
@@ -114,20 +121,20 @@ export class Sudoku {
                 for (let i: number = 0; i < 9; i++) {
                     let isNumberPresented: boolean = false;
                     for (let j: number = 0; j < 9; j++) {
-                        if (this.cells[i][j].value === n) {
+                        if ( this.cells[ i ][ j ].value === n ) {
                             isNumberPresented = true;
                             break;
                         }
                     }
-                    if (!isNumberPresented) {
+                    if ( !isNumberPresented ) {
                         let possiblePositions: number[] = [];
                         for (let j: number = 0; j < 9; j++) {
-                            if (this.cells[i][j].value === 0 && this.cells[i][j].possibleValues.indexOf(n) > -1) {
+                            if ( this.cells[ i ][ j ].value === 0 && this.cells[ i ][ j ].possibleValues.indexOf(n) > -1 ) {
                                 possiblePositions.push(j);
                             }
                         }
-                        if (possiblePositions.length === 1) {
-                            this.writeCalculatedValue(i, possiblePositions[0], n);
+                        if ( possiblePositions.length === 1 ) {
+                            this.writeCalculatedValue(i, possiblePositions[ 0 ], n);
                             atLeastOneFoundOnLastIteration = true;
                         }
                     }
@@ -136,23 +143,23 @@ export class Sudoku {
                 for (let j: number = 0; j < 9; j++) {
                     let isNumberPresented: boolean = false;
                     for (let i: number = 0; i < 9; i++) {
-                        if (this.cells[i][j].value === n) {
+                        if ( this.cells[ i ][ j ].value === n ) {
                             isNumberPresented = true;
                             break;
                         }
                     }
-                    if (!isNumberPresented) {
+                    if ( !isNumberPresented ) {
                         let possiblePositions: number[] = [];
                         for (let i: number = 0; i < 9; i++) {
-                            if (this.cells[i][j].value === 0 && this.cells[i][j].possibleValues.indexOf(n) > -1) {
+                            if ( this.cells[ i ][ j ].value === 0 && this.cells[ i ][ j ].possibleValues.indexOf(n) > -1 ) {
                                 possiblePositions.push(i);
                             }
                         }
-                        if (possiblePositions.length === 0) {
+                        if ( possiblePositions.length === 0 ) {
                             throw new SudokuError(1, 'Sudoku doesn\'t have any solution');
                         }
-                        if (possiblePositions.length === 1) {
-                            this.writeCalculatedValue(possiblePositions[0], j, n);
+                        if ( possiblePositions.length === 1 ) {
+                            this.writeCalculatedValue(possiblePositions[ 0 ], j, n);
                             atLeastOneFoundOnLastIteration = true;
                         }
                     }
@@ -162,53 +169,62 @@ export class Sudoku {
                     let cellX: number = cellIndex % 3;
                     let cellY: number = (cellIndex - cellX) / 3;
                     let isNumberPresented: boolean = false;
-                    for (let i: number = cellX*3; i < (cellX+1)*3; i++) {
-                        for (let j: number = cellY*3; j < (cellY+1)*3; j++) {
-                            if (this.cells[i][j].value === n) {
+                    for (let i: number = cellX * 3; i < (cellX + 1) * 3; i++) {
+                        for (let j: number = cellY * 3; j < (cellY + 1) * 3; j++) {
+                            if ( this.cells[ i ][ j ].value === n ) {
                                 isNumberPresented = true;
                                 break;
                             }
                         }
                     }
-                    if (!isNumberPresented) {
+                    if ( !isNumberPresented ) {
                         let possiblePositions: any[] = [];
 
-                        for (let i: number = cellX*3; i < (cellX+1)*3; i++) {
-                            for (let j: number = cellY*3; j < (cellY+1)*3; j++) {
-                                if (this.cells[i][j].value === 0 && this.cells[i][j].possibleValues.indexOf(n) > -1) {
-                                    possiblePositions.push({x: i, y: j});
+                        for (let i: number = cellX * 3; i < (cellX + 1) * 3; i++) {
+                            for (let j: number = cellY * 3; j < (cellY + 1) * 3; j++) {
+                                if ( this.cells[ i ][ j ].value === 0 && this.cells[ i ][ j ].possibleValues.indexOf(n) > -1 ) {
+                                    possiblePositions.push({
+                                        x: i,
+                                        y: j
+                                    });
                                 }
                             }
                         }
-                        if (possiblePositions.length === 0) {
+                        if ( possiblePositions.length === 0 ) {
                             throw new SudokuError(1, 'Sudoku doesn\'t have any solution');
                         }
-                        if (possiblePositions.length === 1) {
-                            this.writeCalculatedValue(possiblePositions[0].x, possiblePositions[0].y, n);
+                        if ( possiblePositions.length === 1 ) {
+                            this.writeCalculatedValue(possiblePositions[ 0 ].x, possiblePositions[ 0 ].y, n);
                             atLeastOneFoundOnLastIteration = true;
                         }
                     }
                 }
             }
         }
-        if (!atLeastOneFoundOnLastIteration && atLeastOneEmpty) {
+        if ( !atLeastOneFoundOnLastIteration && atLeastOneEmpty ) {
             // few possible solutions. Let's check them recursively
             let i: number = 0;
             let j: number = 0;
             outer:
                 for (i = 0; i < 9; i++) {
                     for (j = 0; j < 9; j++) {
-                        if (this.cells[i][j].value === 0) {
+                        if ( this.cells[ i ][ j ].value === 0 ) {
                             break outer;
                         }
                     }
                 }
             let valuesToCheck: any[] = [];
-            for (let k: number = 0; k < this.cells[i][j].possibleValues.length; k++) {
-                valuesToCheck.push({value: this.cells[i][j].possibleValues[k], result: null});
+            for (let k: number = 0; k < this.cells[ i ][ j ].possibleValues.length; k++) {
+                valuesToCheck.push({
+                    value: this.cells[ i ][ j ].possibleValues[ k ],
+                    result: null
+                });
             }
             let solutionsCounter: number = 0;
-            let anySolution: any = {value: 0, result: null};
+            let anySolution: any = {
+                value: 0,
+                result: null
+            };
             let testSudoku: Sudoku;
             for (let testValue of valuesToCheck) {
                 testSudoku = this.clone();
@@ -220,15 +236,15 @@ export class Sudoku {
                     solutionsCounter++;
                 } catch (err) {
                     // if recursive solver said that sudoku has more than one solution, it is true
-                    if ((err as SudokuError).code === 2) {
+                    if ( (err as SudokuError).code === 2 ) {
                         throw err;
                     }
                 }
-                if (solutionsCounter > 1) {
+                if ( solutionsCounter > 1 ) {
                     throw new SudokuError(2, 'Sudoku has more than one solution');
                 }
             }
-            if (solutionsCounter === 0) {
+            if ( solutionsCounter === 0 ) {
                 throw new SudokuError(1, 'Sudoku doesn\'t have any solution');
             } else {
                 this.copyFrom(anySolution.result);
@@ -237,46 +253,49 @@ export class Sudoku {
     }
 
     calculateCellPossibleValues(i: number, j: number): void {
-        let cell: SudokuCell = this.cells[i][j];
-        if (cell.value > 0) {
-            cell.possibleValues = [cell.value];
+        let cell: SudokuCell = this.cells[ i ][ j ];
+        if ( cell.value > 0 ) {
+            cell.possibleValues = [ cell.value ];
             return;
         }
-        cell.possibleValues = [...Array.from(Array(9).keys()).map(i => ++i)];
+        cell.possibleValues = [ ...Array.from(Array(9)
+            .keys())
+                                        .map(i => ++i)
+        ];
         for (let ii: number = 0; ii < 9; ii++) {
-            if (this.cells[ii][j].value > 0 && cell.possibleValues.indexOf(this.cells[ii][j].value) > -1) {
-                cell.possibleValues.splice(cell.possibleValues.indexOf(this.cells[ii][j].value), 1);
+            if ( this.cells[ ii ][ j ].value > 0 && cell.possibleValues.indexOf(this.cells[ ii ][ j ].value) > -1 ) {
+                cell.possibleValues.splice(cell.possibleValues.indexOf(this.cells[ ii ][ j ].value), 1);
             }
         }
         for (let jj: number = 0; jj < 9; jj++) {
-            if (this.cells[i][jj].value > 0 && cell.possibleValues.indexOf(this.cells[i][jj].value) > -1) {
-                cell.possibleValues.splice(cell.possibleValues.indexOf(this.cells[i][jj].value), 1);
+            if ( this.cells[ i ][ jj ].value > 0 && cell.possibleValues.indexOf(this.cells[ i ][ jj ].value) > -1 ) {
+                cell.possibleValues.splice(cell.possibleValues.indexOf(this.cells[ i ][ jj ].value), 1);
             }
         }
         for (let ii: number = (i - i % 3); ii < (i - i % 3 + 3); ii++) {
             for (let jj: number = (j - j % 3); jj < (j - j % 3 + 3); jj++) {
-                if (this.cells[ii][jj].value > 0 && cell.possibleValues.indexOf(this.cells[ii][jj].value) > -1) {
-                    cell.possibleValues.splice(cell.possibleValues.indexOf(this.cells[ii][jj].value), 1);
+                if ( this.cells[ ii ][ jj ].value > 0 && cell.possibleValues.indexOf(this.cells[ ii ][ jj ].value) > -1 ) {
+                    cell.possibleValues.splice(cell.possibleValues.indexOf(this.cells[ ii ][ jj ].value), 1);
                 }
             }
         }
     }
 
     writeCalculatedValue(i: number, j: number, value: number): void {
-        let cell: SudokuCell = this.cells[i][j];
+        let cell: SudokuCell = this.cells[ i ][ j ];
         cell.value = value;
         cell.status = SudokuCellStatus.Calculated;
         for (let k: number = 0; k < 9; k++) {
-            if (k !== i) {
+            if ( k !== i ) {
                 this.calculateCellPossibleValues(k, j);
             }
-            if (k !== j) {
+            if ( k !== j ) {
                 this.calculateCellPossibleValues(i, k);
             }
         }
         for (let ii: number = (i - i % 3); ii < (i - i % 3 + 3); ii++) {
             for (let jj: number = (j - j % 3); jj < (j - j % 3 + 3); jj++) {
-                if (i === ii || j === jj) {
+                if ( i === ii || j === jj ) {
                     continue;
                 }
                 this.calculateCellPossibleValues(ii, jj);
@@ -285,17 +304,17 @@ export class Sudoku {
     }
 
     private markAsWrongValues(i: number, j: number, ii: number, jj: number): void {
-        this.cells[i][j].status = SudokuCellStatus.Error;
-        this.cells[ii][jj].status = SudokuCellStatus.Error;
+        this.cells[ i ][ j ].status = SudokuCellStatus.Error;
+        this.cells[ ii ][ jj ].status = SudokuCellStatus.Error;
     }
 
     clear(clearSetCells: boolean = true): void {
         for (let i: number = 0; i < 9; i++) {
             for (let j: number = 0; j < 9; j++) {
-                if (clearSetCells || [SudokuCellStatus.Error, SudokuCellStatus.Set].indexOf(this.cells[i][j].status) === -1) {
-                    this.cells[i][j] = new SudokuCell(0);
-                } else if (this.cells[i][j].status === SudokuCellStatus.Error) {
-                    this.cells[i][j].status = SudokuCellStatus.Set;
+                if ( clearSetCells || [ SudokuCellStatus.Error, SudokuCellStatus.Set ].indexOf(this.cells[ i ][ j ].status) === -1 ) {
+                    this.cells[ i ][ j ] = new SudokuCell(0);
+                } else if ( this.cells[ i ][ j ].status === SudokuCellStatus.Error ) {
+                    this.cells[ i ][ j ].status = SudokuCellStatus.Set;
                 }
             }
         }
@@ -303,9 +322,15 @@ export class Sudoku {
     }
 
     copyFrom(copySource: Sudoku): void {
-        this.cells = [...Array.from(Array(9).keys()).map(i => [...Array.from(Array(9).keys()).map(j =>
-            copySource.cells[i][j].clone()
-        )])];
+        this.cells = [ ...Array.from(Array(9)
+            .keys())
+                               .map(i => [ ...Array.from(Array(9)
+                                   .keys())
+                                                   .map(j =>
+                                                       copySource.cells[ i ][ j ].clone()
+                                                   )
+                               ])
+        ];
     }
 
     clone(): Sudoku {
@@ -316,8 +341,8 @@ export class Sudoku {
         this.clear(true);
         for (let i: number = 0; i < 9; i++) {
             for (let j: number = 0; j < 9; j++) {
-                let cellValue: number = Number.parseInt(value[i * 9 + j], 19);
-                this.cells[i][j] = new SudokuCell(cellValue > 0 && cellValue < 10 ? cellValue : 0);
+                let cellValue: number = Number.parseInt(value[ i * 9 + j ], 19);
+                this.cells[ i ][ j ] = new SudokuCell(cellValue > 0 && cellValue < 10 ? cellValue : 0);
             }
         }
         this.invalidateIsValid();
@@ -325,17 +350,31 @@ export class Sudoku {
 
     serialize(): string {
         let result: string = '';
-        if (this.isValid) {
+        if ( this.isValid ) {
             for (let i: number = 0; i < 9; i++) {
                 for (let j: number = 0; j < 9; j++) {
-                    let value: number = this.cells[i][j].value;
-                    if (value === 0) {
+                    let value: number = this.cells[ i ][ j ].value;
+                    if ( value === 0 ) {
                         return '';
                     }
-                    if (this.cells[i][j].status == SudokuCellStatus.Calculated) {
+                    if ( this.cells[ i ][ j ].status == SudokuCellStatus.Calculated ) {
                         value += 9;
                     }
                     result += value.toString(19);
+                }
+            }
+        }
+        return result;
+    }
+
+    serializeSource(): string {
+        let result: string = '';
+        for (let i: number = 0; i < 9; i++) {
+            for (let j: number = 0; j < 9; j++) {
+                if ( [ SudokuCellStatus.Error, SudokuCellStatus.Set ].indexOf(this.cells[ i ][ j ].status) === -1 ) {
+                    result += '0';
+                } else {
+                    result += this.cells[ i ][ j ].value;
                 }
             }
         }
