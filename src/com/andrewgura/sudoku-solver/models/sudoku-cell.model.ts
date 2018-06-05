@@ -1,4 +1,5 @@
-import {SudokuCellStatus} from "../enums/sudoku-cell-status.enum";
+import { SudokuCellStatus } from '../enums/sudoku-cell-status.enum';
+
 export class SudokuCell {
 
     private _value: number = 0;
@@ -11,6 +12,7 @@ export class SudokuCell {
 
     public set value(value: number) {
         value = (!isNaN(value) && value > 0 && value < 10) ? Math.round(value) : 0;
+        this.possibleValues = [];
         this._value = value;
     }
 
