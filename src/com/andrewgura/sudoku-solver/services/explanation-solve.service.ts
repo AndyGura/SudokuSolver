@@ -8,6 +8,7 @@ import OnlyPossiblePositionSolveActionModel from '../models/explanation/only-pos
 import RecursiveSolveActionModel from '../models/explanation/recursive.solve-action.model';
 import CellPositionModel from '../models/cell-position.model';
 import SudokuCellSetModel from '../models/sudoku-cell-set.model';
+import SudokuUtils from '../utils/sudoku.utils';
 
 export default class ExplanationSolveService {
 
@@ -16,7 +17,7 @@ export default class ExplanationSolveService {
         // first, lets calculate the matrix of possible values
         for (let i: number = 0; i < 9; i++) {
             for (let j: number = 0; j < 9; j++) {
-                sudoku.calculateCellPossibleValues(i, j);
+                SudokuUtils.calculateCellPossibleValues(sudoku, i, j);
             }
         }
         let complexity: number = 1;

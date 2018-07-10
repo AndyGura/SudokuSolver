@@ -1,10 +1,12 @@
 import { SudokuCellStatus } from '../enums/sudoku-cell-status.enum';
+import SudokuCellSetModel from './sudoku-cell-set.model';
 
 export class SudokuCell {
 
     private _value: number = 0;
     public status: SudokuCellStatus = SudokuCellStatus.Undefined;
     public possibleValues: number[] = [];
+    public cellSets: SudokuCellSetModel[];
 
     public get value(): number {
         return this._value;
@@ -37,6 +39,7 @@ export class SudokuCell {
         const newCell: SudokuCell = new SudokuCell(this.value);
         newCell.status = this.status;
         newCell.possibleValues = this.possibleValues;
+        newCell.cellSets = this.cellSets;
         return newCell;
     }
 

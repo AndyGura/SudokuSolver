@@ -1,8 +1,8 @@
 import { Sudoku } from '../models/sudoku.model';
 import { SudokuError } from '../errors/sudoku.error';
 import { SudokuCell } from '../models/sudoku-cell.model';
-import { SudokuCellStatus } from '../enums/sudoku-cell-status.enum';
 import SudokuCellSetModel from '../models/sudoku-cell-set.model';
+import SudokuUtils from '../utils/sudoku.utils';
 
 // TODO optimize it. Only result matters here
 export default class QuickSolveService {
@@ -11,18 +11,9 @@ export default class QuickSolveService {
         // first, lets calculate the matrix of possible values
         for (let i: number = 0; i < 9; i++) {
             for (let j: number = 0; j < 9; j++) {
-                sudoku.calculateCellPossibleValues(i, j);
+                SudokuUtils.calculateCellPossibleValues(sudoku, i, j);
             }
         }
-        let complexity: number = 1;
-        for (let i: number = 0; i < 9; i++) {
-            for (let j: number = 0; j < 9; j++) {
-                if ( sudoku.cells[ i ][ j ].value == 0 || sudoku.cells[ i ][ j ].status != SudokuCellStatus.Set ) {
-                    complexity *= sudoku.cells[ i ][ j ].possibleValues.length;
-                }
-            }
-        }
-        sudoku.complexity = Math.round(Math.pow(complexity, 0.1));
         let atLeastOneEmpty: boolean = true;
         let atLeastOneFoundOnLastIteration: boolean = true;
         while (atLeastOneEmpty && atLeastOneFoundOnLastIteration) {
