@@ -4,7 +4,6 @@ import { SudokuCell } from '../models/sudoku-cell.model';
 import SudokuCellSetModel from '../models/sudoku-cell-set.model';
 import SudokuUtils from '../utils/sudoku.utils';
 
-// TODO optimize it. Only result matters here
 export default class QuickSolveService {
 
     public static solve(sudoku: Sudoku): void {
