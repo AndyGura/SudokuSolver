@@ -198,7 +198,13 @@ export class Sudoku {
         for (let i: number = 0; i < 9; i++) {
             for (let j: number = 0; j < 9; j++) {
                 let cellValue: number = Number.parseInt(value[ i * 9 + j ], 19);
-                this.cells[ i ][ j ].value = cellValue > 0 && cellValue < 10 ? cellValue : 0;
+                if (cellValue > 0 && cellValue < 10) {
+                    this.cells[ i ][ j ].value = cellValue;
+                    this.cells[ i ][ j ].status = SudokuCellStatus.Set;
+                } else {
+                    this.cells[ i ][ j ].value = 0;
+                    this.cells[ i ][ j ].status = SudokuCellStatus.Undefined;
+                }
             }
         }
         this.invalidateIsValid();
