@@ -73,6 +73,7 @@ export class Sudoku {
     setValue(i: number, j: number, value: number): void {
         this.clear(false);
         this.cells[ i ][ j ].value = value;
+        this.cells[ i ][ j ].status = SudokuCellStatus.Set;
         this.invalidateIsValid();
         this.isSolved = false;
     }
