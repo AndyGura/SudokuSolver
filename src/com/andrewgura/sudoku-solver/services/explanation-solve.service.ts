@@ -59,19 +59,20 @@ export default class ExplanationSolveService {
             }
             // 2. search possible positions of number
             for (let n: number = 1; n < 10; n++) {
-                for (let i: number = 0; i < sudoku.cellSets.length; i++) {
-                    const cellSet: SudokuCellSetModel = sudoku.cellSets[ i ];
-                    let isNumberPresented: boolean = false;
-                    for (let j: number = 0; j < 9; j++) {
-                        if ( cellSet.cells[ j ].value === n ) {
-                            isNumberPresented = true;
-                            break;
+                cellSetLoop:
+                    for (let i: number = 0; i < sudoku.cellSets.length; i++) {
+                        const cellSet: SudokuCellSetModel = sudoku.cellSets[ i ];
+                        if ( cellSet.presentedValues.has(n) ) {
+                            // number presented
+                            continue;
                         }
-                    }
-                    if ( !isNumberPresented ) {
-                        let possiblePositions: number[] = [];
+                        const possiblePositions: number[] = [];
                         for (let j: number = 0; j < 9; j++) {
                             if ( cellSet.cells[ j ].value === 0 && cellSet.cells[ j ].possibleValues.indexOf(n) > -1 ) {
+                                if ( possiblePositions.length === 1 ) {
+                                    // already have possible solution + this, no need to check further
+                                    continue cellSetLoop;
+                                }
                                 possiblePositions.push(j);
                             }
                         }
@@ -85,9 +86,10 @@ export default class ExplanationSolveService {
                             ));
                             sudoku.writeCalculatedValue(pos.x, pos.y, n);
                             atLeastOneFoundOnLastIteration = true;
+                        } else {
+                            throw new SudokuError(1, 'Sudoku doesn\'t have any solution');
                         }
                     }
-                }
             }
         }
         if ( !atLeastOneFoundOnLastIteration && atLeastOneEmpty ) {

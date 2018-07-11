@@ -20,22 +20,21 @@ export class Sudoku {
     public complexity: number = NaN;
 
     constructor(copySource?: Sudoku) {
+        this.initCells();
         if ( copySource ) {
             this.copyFrom(copySource);
-        } else {
-            this.cells = [];
-            while (this.cells.length < 9) {
-                const row: SudokuCell[] = [];
-                while (row.length < 9) {
-                    row.push(new SudokuCell());
-                }
-                this.cells.push(row);
-            }
-            this.initCellSets();
         }
     }
 
-    private initCellSets(): void {
+    private initCells(): void {
+        this.cells = [];
+        while (this.cells.length < 9) {
+            const row: SudokuCell[] = [];
+            while (row.length < 9) {
+                row.push(new SudokuCell());
+            }
+            this.cells.push(row);
+        }
         this.cellSets = [];
         let cellSet: SudokuCellSetModel;
         for (let i = 0; i < 9; i++) {
@@ -79,40 +78,32 @@ export class Sudoku {
 
     public get isValid(): boolean {
         if ( this.invalidateIsValidFlag ) {
-            let knownCellsCounter: number = 0;
-            let wrongCellsCounter: number = 0;
-            for (let i: number = 0; i < 9; i++) {
-                for (let j: number = 0; j < 9; j++) {
-                    if ( !this.cells[ i ][ j ].isUndefined() ) {
-                        let value: number = this.cells[ i ][ j ].value;
-                        for (let ii: number = i + 1; ii < 9; ii++) {
-                            if ( this.cells[ ii ][ j ].value === value ) {
-                                this.markAsWrongValues(i, j, ii, j);
-                                wrongCellsCounter++;
-                            }
-                        }
-                        for (let jj: number = j + 1; jj < 9; jj++) {
-                            if ( this.cells[ i ][ jj ].value === value ) {
-                                this.markAsWrongValues(i, j, i, jj);
-                                wrongCellsCounter++;
-                            }
-                        }
-                        for (let ii: number = (i - i % 3); ii < (i - i % 3 + 3); ii++) {
-                            for (let jj: number = (j - j % 3); jj < (j - j % 3 + 3); jj++) {
-                                if ( i === ii && j === jj ) {
-                                    continue;
-                                }
-                                if ( this.cells[ ii ][ jj ].value === value ) {
-                                    this.markAsWrongValues(i, j, ii, jj);
-                                    wrongCellsCounter++;
-                                }
-                            }
-                        }
-                        knownCellsCounter++;
+            let atLeastOneErrorFound: boolean = false;
+            for (let i: number = 0; i < this.cellSets.length; i++) {
+                const cellSet: SudokuCellSetModel = this.cellSets[ i ];
+                const sortedKnownCells: SudokuCell[] = cellSet.cells
+                                                              .filter(cell => cell.value > 0)
+                                                              .sort((cell1, cell2) => cell1.value - cell2.value);
+                for (let j: number = 0; j < sortedKnownCells.length - 1; j++) {
+                    if ( sortedKnownCells[ j ].value === sortedKnownCells[ j + 1 ].value ) {
+                        this.markAsWrongValues(sortedKnownCells[ j ], sortedKnownCells[ j + 1 ]);
+                        atLeastOneErrorFound = true;
                     }
                 }
             }
-            this._isValid = (wrongCellsCounter == 0) && (knownCellsCounter >= Sudoku.MIN_KNOWN_CELLS_COUNT);
+            let knownCellsCounter: number = 0;
+            outer:
+                for (let i: number = 0; i < 9; i++) {
+                    for (let j: number = 0; j < 9; j++) {
+                        if ( this.cells[ i ][ j ].isSet() ) {
+                            knownCellsCounter++;
+                            if ( knownCellsCounter >= Sudoku.MIN_KNOWN_CELLS_COUNT ) {
+                                break outer;
+                            }
+                        }
+                    }
+                }
+            this._isValid = !atLeastOneErrorFound && (knownCellsCounter >= Sudoku.MIN_KNOWN_CELLS_COUNT);
             this.invalidateIsValidFlag = false;
         }
         return this._isValid;
@@ -143,34 +134,23 @@ export class Sudoku {
         let cell: SudokuCell = this.cells[ x ][ y ];
         cell.value = value;
         cell.status = SudokuCellStatus.Calculated;
-        for (let i = 0; i < cell.cellSets.length; i++) {
-            const cellSet: SudokuCellSetModel = cell.cellSets[ i ];
-            for (let j = 0; j < cellSet.cells.length; j++) {
-                const anotherCell: SudokuCell = cellSet.cells[ j ];
-                if ( anotherCell.value > 0 || cell === anotherCell ) {
-                    continue;
-                }
-                const index: number = anotherCell.possibleValues.indexOf(value);
-                if ( index > -1 ) {
-                    anotherCell.possibleValues.splice(index, 1);
-                }
-            }
-        }
     }
 
-    private markAsWrongValues(i: number, j: number, ii: number, jj: number): void {
-        this.cells[ i ][ j ].status = SudokuCellStatus.Error;
-        this.cells[ ii ][ jj ].status = SudokuCellStatus.Error;
+    private markAsWrongValues(...cells: SudokuCell[]): void {
+        for (let i = 0; i < cells.length; i++) {
+            cells[ i ].status = SudokuCellStatus.Error;
+        }
     }
 
     clear(clearSetCells: boolean = true): void {
         for (let i: number = 0; i < 9; i++) {
             for (let j: number = 0; j < 9; j++) {
-                if ( clearSetCells || [ SudokuCellStatus.Error, SudokuCellStatus.Set ].indexOf(this.cells[ i ][ j ].status) === -1 ) {
-                    this.cells[ i ][ j ].value = 0;
-                    this.cells[ i ][ j ].status = SudokuCellStatus.Undefined;
-                } else if ( this.cells[ i ][ j ].status === SudokuCellStatus.Error ) {
-                    this.cells[ i ][ j ].status = SudokuCellStatus.Set;
+                const cell: SudokuCell = this.cells[ i ][ j ];
+                if ( clearSetCells || (!cell.isSet() && !cell.isError()) ) {
+                    cell.value = 0;
+                    cell.status = SudokuCellStatus.Undefined;
+                } else if ( cell.status === SudokuCellStatus.Error ) {
+                    cell.status = SudokuCellStatus.Set;
                 }
             }
         }
@@ -179,12 +159,13 @@ export class Sudoku {
     }
 
     copyFrom(copySource: Sudoku): void {
-        this.cells = copySource.cells.map((row: SudokuCell[]): SudokuCell[] => {
-            return row.map((cell: SudokuCell): SudokuCell => {
-                return cell.clone();
-            });
-        });
-        this.initCellSets();
+        for (let i: number = 0; i < 9; i++) {
+            for (let j: number = 0; j < 9; j++) {
+                this.cells[ i ][ j ].value = copySource.cells[ i ][ j ].value;
+                this.cells[ i ][ j ].status = copySource.cells[ i ][ j ].status;
+                this.cells[ i ][ j ].possibleValues = copySource.cells[ i ][ j ].possibleValues;
+            }
+        }
     }
 
     clone(): Sudoku {
@@ -195,13 +176,14 @@ export class Sudoku {
         this.clear(true);
         for (let i: number = 0; i < 9; i++) {
             for (let j: number = 0; j < 9; j++) {
-                let cellValue: number = Number.parseInt(value[ i * 9 + j ], 19);
+                const cell: SudokuCell = this.cells[ i ][ j ];
+                const cellValue: number = Number.parseInt(value[ i * 9 + j ], 19);
                 if ( cellValue > 0 && cellValue < 10 ) {
-                    this.cells[ i ][ j ].value = cellValue;
-                    this.cells[ i ][ j ].status = SudokuCellStatus.Set;
+                    cell.value = cellValue;
+                    cell.status = SudokuCellStatus.Set;
                 } else {
-                    this.cells[ i ][ j ].value = 0;
-                    this.cells[ i ][ j ].status = SudokuCellStatus.Undefined;
+                    cell.value = 0;
+                    cell.status = SudokuCellStatus.Undefined;
                 }
             }
         }

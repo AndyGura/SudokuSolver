@@ -1,5 +1,6 @@
 import { SudokuCellStatus } from '../enums/sudoku-cell-status.enum';
 import SudokuCellSetModel from './sudoku-cell-set.model';
+import SudokuUtils from '../utils/sudoku.utils';
 
 export class SudokuCell {
 
@@ -14,13 +15,28 @@ export class SudokuCell {
 
     public set value(value: number) {
         value = (!isNaN(value) && value > 0 && value < 10) ? Math.round(value) : 0;
-        this.possibleValues = [];
+        if ( value > 0 ) {
+            if ( !this.cellSets ) {
+                throw new Error('Trying to set value to sudoku cell while it is not attached to any cell set');
+            }
+            this.possibleValues = [];
+            if ( this._value > 0 ) {
+                for (let i: number = 0; i < this.cellSets.length; i++) {
+                    this.cellSets[ i ].onCellValueUnset(this, this._value);
+                }
+            }
+            for (let i: number = 0; i < this.cellSets.length; i++) {
+                this.cellSets[ i ].onCellValueSet(this, value);
+            }
+        } else {
+            this.possibleValues = SudokuUtils.getAllValues();
+            if ( this.cellSets && this._value > 0 ) {
+                for (let i: number = 0; i < this.cellSets.length; i++) {
+                    this.cellSets[ i ].onCellValueUnset(this, this._value);
+                }
+            }
+        }
         this._value = value;
-    }
-
-    constructor(value: number = 0) {
-        this.value = value;
-        this.status = (value > 0) ? SudokuCellStatus.Set : SudokuCellStatus.Undefined;
     }
 
     public isSet(): boolean {
@@ -33,14 +49,6 @@ export class SudokuCell {
 
     public isUndefined(): boolean {
         return this.status === SudokuCellStatus.Undefined;
-    }
-
-    public clone(): SudokuCell {
-        const newCell: SudokuCell = new SudokuCell(this.value);
-        newCell.status = this.status;
-        newCell.possibleValues = this.possibleValues;
-        newCell.cellSets = this.cellSets;
-        return newCell;
     }
 
 }

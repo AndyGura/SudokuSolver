@@ -12,7 +12,7 @@ export default class SudokuUtils {
         return result;
     })(9);
 
-    public static getAllValues(count: number = 9): number[] {
+    public static getAllValues(): number[] {
         return SudokuUtils.allValues.slice();
     }
 
@@ -22,11 +22,12 @@ export default class SudokuUtils {
             cell.possibleValues = [ cell.value ];
             return;
         }
+        // AG: faster than searching in sets, leave it as it is
         const disallowedValues: Set<number> = new Set<number>();
         for (let i = 0; i < cell.cellSets.length; i++) {
-            const cellSet: SudokuCellSetModel = cell.cellSets[i];
+            const cellSet: SudokuCellSetModel = cell.cellSets[ i ];
             for (let j = 0; j < cellSet.cells.length; j++) {
-                const anotherCell: SudokuCell = cellSet.cells[j];
+                const anotherCell: SudokuCell = cellSet.cells[ j ];
                 if ( anotherCell.value > 0 ) {
                     disallowedValues.add(anotherCell.value);
                 }
