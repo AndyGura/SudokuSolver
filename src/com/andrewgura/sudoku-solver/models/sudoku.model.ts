@@ -171,6 +171,7 @@ export class Sudoku {
             for (let j: number = 0; j < 9; j++) {
                 if ( clearSetCells || [ SudokuCellStatus.Error, SudokuCellStatus.Set ].indexOf(this.cells[ i ][ j ].status) === -1 ) {
                     this.cells[ i ][ j ].value = 0;
+                    this.cells[ i ][ j ].status = SudokuCellStatus.Undefined;
                 } else if ( this.cells[ i ][ j ].status === SudokuCellStatus.Error ) {
                     this.cells[ i ][ j ].status = SudokuCellStatus.Set;
                 }
