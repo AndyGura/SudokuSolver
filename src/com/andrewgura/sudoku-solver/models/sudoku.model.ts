@@ -6,7 +6,6 @@ import SolveActionModel from './explanation/solve-action.model';
 import SudokuCellSetModel from './sudoku-cell-set.model';
 import { CellSetTypeEnum } from '../enums/cell-set-type.enum';
 import CellPositionModel from './cell-position.model';
-import SudokuUtils from '../utils/sudoku.utils';
 
 export class Sudoku {
 
@@ -21,7 +20,7 @@ export class Sudoku {
     public complexity: number = NaN;
 
     constructor(copySource?: Sudoku) {
-        if (copySource) {
+        if ( copySource ) {
             this.copyFrom(copySource);
         } else {
             this.cells = [];
@@ -64,9 +63,9 @@ export class Sudoku {
             });
         });
         this.cellSets.forEach((cellSet: SudokuCellSetModel): void => {
-           cellSet.cells.forEach((cell: SudokuCell): void => {
-               cell.cellSets.push(cellSet);
-           })
+            cellSet.cells.forEach((cell: SudokuCell): void => {
+                cell.cellSets.push(cellSet);
+            });
         });
     }
 
@@ -140,24 +139,21 @@ export class Sudoku {
         return result;
     }
 
-    writeCalculatedValue(i: number, j: number, value: number): void {
-        let cell: SudokuCell = this.cells[ i ][ j ];
+    writeCalculatedValue(x: number, y: number, value: number): void {
+        let cell: SudokuCell = this.cells[ x ][ y ];
         cell.value = value;
         cell.status = SudokuCellStatus.Calculated;
-        for (let k: number = 0; k < 9; k++) {
-            if ( k !== i ) {
-                SudokuUtils.calculateCellPossibleValues(this, k, j);
-            }
-            if ( k !== j ) {
-                SudokuUtils.calculateCellPossibleValues(this, i, k);
-            }
-        }
-        for (let ii: number = (i - i % 3); ii < (i - i % 3 + 3); ii++) {
-            for (let jj: number = (j - j % 3); jj < (j - j % 3 + 3); jj++) {
-                if ( i === ii || j === jj ) {
+        for (let i = 0; i < cell.cellSets.length; i++) {
+            const cellSet: SudokuCellSetModel = cell.cellSets[ i ];
+            for (let j = 0; j < cellSet.cells.length; j++) {
+                const anotherCell: SudokuCell = cellSet.cells[ j ];
+                if ( anotherCell.value > 0 || cell === anotherCell ) {
                     continue;
                 }
-                SudokuUtils.calculateCellPossibleValues(this, ii, jj);
+                const index: number = anotherCell.possibleValues.indexOf(value);
+                if ( index > -1 ) {
+                    anotherCell.possibleValues.splice(index, 1);
+                }
             }
         }
     }
@@ -186,7 +182,7 @@ export class Sudoku {
         this.cells = copySource.cells.map((row: SudokuCell[]): SudokuCell[] => {
             return row.map((cell: SudokuCell): SudokuCell => {
                 return cell.clone();
-            })
+            });
         });
         this.initCellSets();
     }
@@ -200,7 +196,7 @@ export class Sudoku {
         for (let i: number = 0; i < 9; i++) {
             for (let j: number = 0; j < 9; j++) {
                 let cellValue: number = Number.parseInt(value[ i * 9 + j ], 19);
-                if (cellValue > 0 && cellValue < 10) {
+                if ( cellValue > 0 && cellValue < 10 ) {
                     this.cells[ i ][ j ].value = cellValue;
                     this.cells[ i ][ j ].status = SudokuCellStatus.Set;
                 } else {
