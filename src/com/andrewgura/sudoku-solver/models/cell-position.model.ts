@@ -9,7 +9,7 @@ export default class CellPositionModel {
     }
 
     public toString(): string {
-        return `(${this.x + 1}, ${this.y + 1})`;
+        return `(${this.y + 1}, ${this.x + 1})`;
     }
 
 }
