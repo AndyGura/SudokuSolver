@@ -42,10 +42,11 @@ export default class ExplanationSolveService {
                         continue;
                     }
                     if ( cell.possibleValues.length === 1 ) {
-                        sudoku.writeCalculatedValue(i, j, cell.possibleValues[ 0 ]);
+                        const value: number = cell.possibleValues[ 0 ];
+                        sudoku.writeCalculatedValue(i, j, value);
                         result.push(new OnlyPossibleValueSolveActionModel(
                             new CellPositionModel(i, j),
-                            cell.possibleValues[ 0 ],
+                            value,
                             [],
                             sudoku.serialize()
                         ));
