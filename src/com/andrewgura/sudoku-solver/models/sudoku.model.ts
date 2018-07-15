@@ -193,18 +193,13 @@ export class Sudoku {
 
     serialize(): string {
         let result: string = '';
-        if ( this.isValid ) {
-            for (let i: number = 0; i < 9; i++) {
-                for (let j: number = 0; j < 9; j++) {
-                    let value: number = this.cells[ i ][ j ].value;
-                    if ( value === 0 ) {
-                        return '';
-                    }
-                    if ( this.cells[ i ][ j ].status == SudokuCellStatus.Calculated ) {
-                        value += 9;
-                    }
-                    result += value.toString(19);
+        for (let i: number = 0; i < 9; i++) {
+            for (let j: number = 0; j < 9; j++) {
+                let value: number = this.cells[ i ][ j ].value;
+                if ( this.cells[ i ][ j ].status == SudokuCellStatus.Calculated ) {
+                    value += 9;
                 }
+                result += value.toString(19);
             }
         }
         return result;
