@@ -42,12 +42,13 @@ export default class ExplanationSolveService {
                         continue;
                     }
                     if ( cell.possibleValues.length === 1 ) {
+                        sudoku.writeCalculatedValue(i, j, cell.possibleValues[ 0 ]);
                         result.push(new OnlyPossibleValueSolveActionModel(
                             new CellPositionModel(i, j),
                             cell.possibleValues[ 0 ],
-                            []
+                            [],
+                            sudoku.serialize()
                         ));
-                        sudoku.writeCalculatedValue(i, j, cell.possibleValues[ 0 ]);
                         atLeastOneFoundOnLastIteration = true;
                     } else {
                         if ( cell.possibleValues.length === 0 ) {
@@ -78,13 +79,14 @@ export default class ExplanationSolveService {
                         }
                         if ( possiblePositions.length === 1 ) {
                             const pos: { x: number, y: number } = cellSet.getCellCoordinates(possiblePositions[ 0 ]);
+                            sudoku.writeCalculatedValue(pos.x, pos.y, n);
                             result.push(new OnlyPossiblePositionSolveActionModel(
                                 cellSet.setType,
                                 new CellPositionModel(pos.x, pos.y),
                                 n,
-                                []
+                                [],
+                                sudoku.serialize()
                             ));
-                            sudoku.writeCalculatedValue(pos.x, pos.y, n);
                             atLeastOneFoundOnLastIteration = true;
                         } else {
                             throw new SudokuError(1, 'Sudoku doesn\'t have any solution');
@@ -143,7 +145,8 @@ export default class ExplanationSolveService {
             } else {
                 result.push(new RecursiveSolveActionModel(
                     new CellPositionModel(i, j),
-                    anySolution.value
+                    anySolution.value,
+                    sudoku.serialize()
                 ));
                 result.push.apply(result, anySolution.explanation);
                 sudoku.copyFrom(anySolution.result);

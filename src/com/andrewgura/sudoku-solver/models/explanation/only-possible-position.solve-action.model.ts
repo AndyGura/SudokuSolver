@@ -13,8 +13,20 @@ export default class OnlyPossiblePositionSolveActionModel extends SolveActionMod
 
     private readonly scope: CellSetTypeEnum;
 
-    constructor(scope: CellSetTypeEnum, cellPosition: CellPositionModel, foundValue: number, affectingCells: CellPositionModel[]) {
-        super(OnlyPossiblePositionSolveActionModel.SCOPE_ACTION_TYPE_MAP[ scope ], cellPosition, foundValue, affectingCells);
+    constructor(
+        scope: CellSetTypeEnum,
+        cellPosition: CellPositionModel,
+        foundValue: number,
+        affectingCells: CellPositionModel[],
+        sudokuStateAfterAction: string
+    ) {
+        super(
+            OnlyPossiblePositionSolveActionModel.SCOPE_ACTION_TYPE_MAP[ scope ],
+            cellPosition,
+            foundValue,
+            affectingCells,
+            sudokuStateAfterAction
+        );
         this.scope = scope;
     }
 

@@ -4,8 +4,18 @@ import CellPositionModel from '../cell-position.model';
 
 export default class RecursiveSolveActionModel extends SolveActionModel {
 
-    constructor(cellPosition: CellPositionModel, foundValue: number) {
-        super(ActionTypeEnum.RecursiveResult, cellPosition, foundValue, []);
+    constructor(
+        cellPosition: CellPositionModel,
+        foundValue: number,
+        sudokuStateAfterAction: string
+    ) {
+        super(
+            ActionTypeEnum.RecursiveResult,
+            cellPosition,
+            foundValue,
+            [],
+            sudokuStateAfterAction
+        );
     }
 
     toString(): string {

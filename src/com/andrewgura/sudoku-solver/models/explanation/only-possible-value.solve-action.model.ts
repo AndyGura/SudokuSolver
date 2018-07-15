@@ -4,8 +4,19 @@ import CellPositionModel from '../cell-position.model';
 
 export default class OnlyPossibleValueSolveActionModel extends SolveActionModel {
 
-    constructor(cellPosition: CellPositionModel, foundValue: number, affectingCells: CellPositionModel[]) {
-        super(ActionTypeEnum.TheOnlyPossibleValue, cellPosition, foundValue, affectingCells);
+    constructor(
+        cellPosition: CellPositionModel,
+        foundValue: number,
+        affectingCells: CellPositionModel[],
+        sudokuStateAfterAction: string
+    ) {
+        super(
+            ActionTypeEnum.TheOnlyPossibleValue,
+            cellPosition,
+            foundValue,
+            affectingCells,
+            sudokuStateAfterAction
+        );
     }
 
     toString(): string {
