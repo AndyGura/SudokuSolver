@@ -16,10 +16,18 @@ export default class SudokuUtils {
         return SudokuUtils.allValues.slice();
     }
 
+    public static calculateAllCellsPossibleValues(sudoku: Sudoku): void {
+        for (let i: number = 0; i < 9; i++) {
+            for (let j: number = 0; j < 9; j++) {
+                SudokuUtils.calculateCellPossibleValues(sudoku, i, j);
+            }
+        }
+    }
+
     public static calculateCellPossibleValues(sudoku: Sudoku, i: number, j: number): void {
         let cell: SudokuCell = sudoku.cells[ i ][ j ];
         if ( cell.value > 0 ) {
-            cell.possibleValues = [ cell.value ];
+            cell.possibleValuesHash.fromArray([ cell.value ]);
             return;
         }
         // AG: faster than searching in sets, leave it as it is
@@ -33,7 +41,7 @@ export default class SudokuUtils {
                 }
             }
         }
-        cell.possibleValues = SudokuUtils.allValues.filter(value => !disallowedValues.has(value));
+        cell.possibleValuesHash.fromArray(SudokuUtils.allValues.filter(value => !disallowedValues.has(value)));
     }
 
 }

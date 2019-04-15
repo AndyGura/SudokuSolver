@@ -1,5 +1,87 @@
-import { Sudoku } from './com/andrewgura/sudoku-solver/models/sudoku.model';
+import {Sudoku} from './com/andrewgura/sudoku-solver/models/sudoku.model';
 import SolveActionModel from './com/andrewgura/sudoku-solver/models/explanation/solve-action.model';
+import RecursiveSolveActionModel from './com/andrewgura/sudoku-solver/models/explanation/recursive.solve-action.model';
+import SudokuUtils from './com/andrewgura/sudoku-solver/utils/sudoku.utils';
+import EntanglementModel from './com/andrewgura/sudoku-solver/models/entanglement.model';
+import IntsHashSet from './com/andrewgura/sudoku-solver/utils/ints-hash-set';
+
+function testIntsHashSet(): boolean {
+    const hashSet = new IntsHashSet(0);
+    for (let i = 0; i < 10; i++) {
+        if (hashSet.hasItem(i)) {
+            return false;
+        }
+    }
+    hashSet.addItem(3);
+    for (let i = 0; i < 10; i++) {
+        if (i === 3) {
+            if (!hashSet.hasItem(i)) {
+                return false;
+            }
+        } else {
+            if (hashSet.hasItem(i)) {
+                return false;
+            }
+        }
+    }
+    hashSet.addItem(5);
+    for (let i = 0; i < 10; i++) {
+        if (i === 3 || i === 5) {
+            if (!hashSet.hasItem(i)) {
+                return false;
+            }
+        } else {
+            if (hashSet.hasItem(i)) {
+                return false;
+            }
+        }
+    }
+    hashSet.removeItem(5);
+    for (let i = 0; i < 10; i++) {
+        if (i === 3) {
+            if (!hashSet.hasItem(i)) {
+                return false;
+            }
+        } else {
+            if (hashSet.hasItem(i)) {
+                return false;
+            }
+        }
+    }
+    hashSet.removeItem(3);
+    for (let i = 0; i < 10; i++) {
+        if (hashSet.hasItem(i)) {
+            return false;
+        }
+    }
+    const arr = [0, 2, 8];
+    hashSet.fromArray(arr);
+    for (let i = 0; i < 10; i++) {
+        if (hashSet.hasItem(i) !== arr.includes(i)) {
+            return false;
+        }
+    }
+    return hashSet.toArray()
+                  .toString() == arr.toString();
+}
+
+function testEntanglements(): boolean {
+    let entanglements: EntanglementModel[];
+    let sudoku: Sudoku = new Sudoku();
+    sudoku.deserialize('123406780');
+    SudokuUtils.calculateAllCellsPossibleValues(sudoku);
+    entanglements = sudoku.cellSets[0].findEntanglements();
+    if (entanglements.length != 1) {
+        return false;
+    }
+    sudoku.deserialize('123406700' + '000890000');
+    SudokuUtils.calculateAllCellsPossibleValues(sudoku);
+    entanglements = sudoku.cellSets[0].findEntanglements();
+    if (entanglements.length != 1) {
+        return false;
+    }
+    return true;
+}
 
 function testSolver(): boolean {
     let testCases: string[] = [
@@ -14,14 +96,15 @@ function testSolver(): boolean {
     console.log('Checking solve result.................');
     for (let i: number = 0; i < testCases.length; i++) {
         let sudoku: Sudoku = new Sudoku();
-        sudoku.deserialize(testCases[ i ]);
+        sudoku.deserialize(testCases[i]);
         try {
             sudoku.solve();
         } catch (err) {
             console.log('FAIL');
+            console.log(err);
             return false;
         }
-        if ( sudoku.serialize() != testCases[ i ] ) {
+        if (sudoku.serialize() != testCases[i]) {
             console.log('WRONG RESULT');
             return false;
         }
@@ -30,16 +113,17 @@ function testSolver(): boolean {
     console.log('Checking explain result...............');
     for (let i: number = 0; i < testCases.length; i++) {
         let sudoku: Sudoku = new Sudoku();
-        sudoku.deserialize(testCases[ i ]);
+        sudoku.deserialize(testCases[i]);
         try {
             const result: SolveActionModel[] = sudoku.explain();
-            // console.log(testCases[ i ]);
-            // console.log(`${result.join('\n')}\n\n`);
+            console.log(testCases[i]);
+            console.log(`Amount of recursive actions: ${result.filter(x => x instanceof RecursiveSolveActionModel).length}`);
         } catch (err) {
             console.log('FAIL');
+            console.log(err);
             return false;
         }
-        if ( sudoku.serialize() != testCases[ i ] ) {
+        if (sudoku.serialize() != testCases[i]) {
             console.log('WRONG RESULT');
             return false;
         }
@@ -74,7 +158,7 @@ function testSolver(): boolean {
 
     startTime = now;
     for (let i: number = 0; i < passes; i++) {
-        sudokus[ i ].solve();
+        sudokus[i].solve();
     }
     now = Date.now();
     solveTime = now - startTime;
@@ -90,7 +174,7 @@ function testSolver(): boolean {
 
     startTime = now;
     for (let i: number = 0; i < passes; i++) {
-        sudokus[ i ].explain();
+        sudokus[i].explain();
     }
     now = Date.now();
     explainTime = now - startTime;
@@ -99,16 +183,16 @@ function testSolver(): boolean {
 
     startTime = now;
     for (let i: number = 0; i < passes; i++) {
-        sudokus[ i ].clear(false);
+        sudokus[i].clear(false);
     }
     now = Date.now();
     clearTime = now - startTime;
     console.log(`\tclear time: ${clearTime / passes} ms`);
 
 
-    console.log(`\tcomplexity: ${sudokus[ 0 ].complexity}`);
+    console.log(`\tcomplexity: ${sudokus[0].complexity}`);
     return true;
 }
 
-let testResult: boolean = testSolver();
+let testResult: boolean = testIntsHashSet() && testEntanglements() && testSolver();
 console.log(testResult ? 'Test success' : 'Test fail');

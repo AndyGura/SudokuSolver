@@ -163,7 +163,7 @@ export class Sudoku {
             for (let j: number = 0; j < 9; j++) {
                 this.cells[ i ][ j ].value = copySource.cells[ i ][ j ].value;
                 this.cells[ i ][ j ].status = copySource.cells[ i ][ j ].status;
-                this.cells[ i ][ j ].possibleValues = copySource.cells[ i ][ j ].possibleValues;
+                this.cells[ i ][ j ].possibleValuesHash = copySource.cells[ i ][ j ].possibleValuesHash.clone();
             }
         }
     }

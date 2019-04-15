@@ -18,5 +18,3 @@ gulp.task('compile-ts', function () {
         .pipe(sourcemaps.write('../dist'))
         .pipe(gulp.dest('dist'));
 });
-
-gulp.task('build', ['compile-ts']);

@@ -13,12 +13,15 @@
     "typescript"
   ],
   "scripts": {
-    "test": "gulp clean && gulp build && node dist/src/test.js"
+    "test": "gulp clean && gulp compile-ts && node dist/src/test.js"
   },
   "dependencies": {
-    "gulp": "^3.9.1",
-    "gulp-clean": "^0.3.2",
-    "gulp-typescript": "^3.1.5",
-    "typescript": "^2.1.6"
+    "gulp": "^4.0.0",
+    "gulp-clean": "^0.4.0",
+    "gulp-typescript": "^5.0.0",
+    "typescript": "^3.3.3333"
+  },
+  "devDependencies": {
+    "gulp-sourcemaps": "^2.6.5"
   }
 }
